@@ -204,10 +204,14 @@ void tasks(char *path_in, char *path_out) {
 		pointsctd[1][i].y = pointsctd[1][i].y * 824.267 + 252.928;
 	}
 
+	Mat R, t, RR, TR;
 	Mat w, u, vt, R0, R3, T0, T1, T2, T3;
 	SVD::compute(E, w, u, vt);
 	w = (Mat_<double>(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 0);
-	
+	E = u*w*vt;
+	recoverPose(E, pointsctd[0], pointsctd[1], R, t);
+	recoverPose(E, pointsctd[1], pointsctd[0], RR, TR);
+
 	Mat Rz0 = (Mat_<double>(3, 3) << 0, -1, 0, 1, 0, 0, 0, 0, 1);
 	Mat Rz1 = (Mat_<double>(3, 3) << 0, 1, 0, -1, 0, 0, 0, 0, 1);
 
@@ -220,151 +224,80 @@ void tasks(char *path_in, char *path_out) {
 	Mat t0 = (Mat_<double>(3, 1) << T0.at<double>(2, 1), T0.at<double>(2, 0), T0.at<double>(1, 0));
 	Mat t1 = (Mat_<double>(3, 1) << T1.at<double>(2, 1), T1.at<double>(2, 0), T1.at<double>(1, 0));
 
-	Mat p3d0[300];
-	Mat p3d1[300];
-	Mat p3d2[300];
-	Mat p3d3[300];
-
-	for (int i = 0; i < 50; i++) {
-		Mat pt0 = (Mat_<double>(3, 1) << pointsctd[0][i].x, pointsctd[0][i].y, 1);
-		Mat pt1 = (Mat_<double>(3, 1) << pointsctd[1][i].x, pointsctd[1][i].y, 1);
-
-		Mat x = M.inv()*pt0;
-		Mat x1 = -R0.t() * M.inv()*pt1;
-		Mat x2 = M.inv()*pt0.cross(R0.t()*M.inv()*pt1);
-		Mat B = -R0.t()*t0;
-		Mat tmp, A, X;
-		hconcat(x, x1, tmp);
-		hconcat(tmp, x2, A);
-		solve(A, B, X);
-		tmp = (Mat_<double>(3, 1) << (X.at<double>(0, 0)*A.at<double>(0, 0) - X.at<double>(1, 0)*A.at<double>(0, 1)) / 2,
-			(X.at<double>(0, 0)*A.at<double>(1, 0) - X.at<double>(1, 0)*A.at<double>(1, 1)) / 2,
-			(X.at<double>(0, 0)*A.at<double>(2, 0) - X.at<double>(1, 0)*A.at<double>(2, 1)) / 2);
-		p3d0[i] = tmp;
-
-		x = M.inv()*pt0;
-		x1 = -R0.t() * M.inv()*pt1;
-		x2 = M.inv()*pt0.cross(R0.t()*M.inv()*pt1);
-		B = -R0.t()*t1;
-		tmp, A, X;
-		hconcat(x, x1, tmp);
-		hconcat(tmp, x2, A);
-		solve(A, B, X);
-		tmp = (Mat_<double>(3, 1) << (X.at<double>(0, 0)*A.at<double>(0, 0) - X.at<double>(1, 0)*A.at<double>(0, 1)) / 2,
-			(X.at<double>(0, 0)*A.at<double>(1, 0) - X.at<double>(1, 0)*A.at<double>(1, 1)) / 2,
-			(X.at<double>(0, 0)*A.at<double>(2, 0) - X.at<double>(1, 0)*A.at<double>(2, 1)) / 2);
-		p3d1[i] = tmp;
-
-		x = M.inv()*pt0;
-		x1 = -R1.t() * M.inv()*pt1;
-		x2 = M.inv()*pt0.cross(R1.t()*M.inv()*pt1);
-		B = -R1.t()*t0;
-		tmp, A, X;
-		hconcat(x, x1, tmp);
-		hconcat(tmp, x2, A);
-		solve(A, B, X);
-		tmp = (Mat_<double>(3, 1) << (X.at<double>(0, 0)*A.at<double>(0, 0) - X.at<double>(1, 0)*A.at<double>(0, 1)) / 2,
-			(X.at<double>(0, 0)*A.at<double>(1, 0) - X.at<double>(1, 0)*A.at<double>(1, 1)) / 2,
-			(X.at<double>(0, 0)*A.at<double>(2, 0) - X.at<double>(1, 0)*A.at<double>(2, 1)) / 2);
-		p3d2[i] = tmp;
-
-		x = M.inv()*pt0;
-		x1 = -R1.t() * M.inv()*pt1;
-		x2 = M.inv()*pt0.cross(R1.t()*M.inv()*pt1);
-		B = -R1.t()*t1;
-		tmp, A, X;
-		hconcat(x, x1, tmp);
-		hconcat(tmp, x2, A);
-		solve(A, B, X);
-		tmp = (Mat_<double>(3, 1) << (X.at<double>(0, 0)*A.at<double>(0, 0) - X.at<double>(1, 0)*A.at<double>(0, 1)) / 2,
-			(X.at<double>(0, 0)*A.at<double>(1, 0) - X.at<double>(1, 0)*A.at<double>(1, 1)) / 2,
-			(X.at<double>(0, 0)*A.at<double>(2, 0) - X.at<double>(1, 0)*A.at<double>(2, 1)) / 2);
-		p3d3[i] = tmp;
-	}
-
-	int use0 = 1;
-	int use1 = 1;
-	int use2 = 1;
-	int use3 = 1;
-
-	for (int i = 0; i < 50; i++) {
-		if (p3d0[i].at<double>(2, 0) < 0)
-			use0--;
-		if (p3d1[i].at<double>(2, 0) < 0)
-			use1--;
-		if (p3d2[i].at<double>(2, 0) < 0)
-			use2--;
-		if (p3d3[i].at<double>(2, 0) < 0)
-			use3--;
-	}
-
-	Mat R_final, T_final;
-	Mat *p3d;
-	if (use0 + use1 + use2 + use3 > 1) {
-		printf("Multiple positives...\n");
-	}
-	else if (use0 <=0 &&  use1 <= 0 &&  use2 <=0 && use3 <= 0) {
-		printf("No positives...\n");
-		if (use0 > use1 && use0 > use2 && use0 > use3) {
-			use0 = 1;
-		}
-		else if (use1 > use0 && use1 > use2 && use1 > use3) {
-			use1 = 1;
-		}
-		else if (use2 > use1 && use2 > use0 && use2 > use3) {
-			use2 = 1;
-		}
-		else if (use3 > use1 && use3 > use2 && use3 > use0) {
-			use3 = 1;
-		}
-	}
-
-	if (use0==1) {
-		R_final = R0;
-		T_final = t0;
-		p3d = p3d0;
-	}
-	else if (use1 == 1) {
-		R_final = R0;
-		T_final = t1;
-		p3d = p3d1;
-	}
-	else if (use2 == 1) {
-		R_final = R1;
-		T_final = t0;
-		p3d = p3d2;
-	}
-	else if (use3 == 1) {
-		R_final = R1;
-		T_final = t1;
-		p3d = p3d3;
-	}
-	sprintf(full_path_out, "%s_params.txt", path_out);
-
 	ofstream ofs;
 
 	ofs.open(full_path_out, ofstream::out);
-	ofs << "R = " << endl << " " << R_final << endl << endl;
-	ofs << "T = " << endl << " " << T_final << endl << endl;
+	ofs << "R = " << endl << " " << R << endl << endl;
+	ofs << "T = " << endl << " " << t << endl << endl;
 	ofs << "E = " << endl << " " << E << endl << endl;
 	ofs << "F = " << endl << " " << F << endl << endl;
 	ofs.close();
 
 	// task 3 code
-	double min = 100;
-	for (int i = 0; i < 50; i++) {
-		double d = p3d[i].at<double>(2, 0);
+	Mat P1, P2, Q, im1, im2, map1, map2, pts4d;
+	stereoRectify(M, distCoeff1, M, distCoeff1, Size(640, 480), R, t, R1, R2, P1, P2, Q);
+	undistortPoints(points[0], pointsctd[0], M, distCoeff1);
+	undistortPoints(points[1], pointsctd[1], M, distCoeff1);
+	//Mat RT1, RT2;
+	//hconcat(R, t, RT1);
+	//hconcat(RR, TR, RT2);
+	//Mat z = Mat::zeros(3, 1, CV_64F);
+	//hconcat(M, z, P1);
+	//hconcat(M, z, P2);
+	//P2.at<double>(0, 3) = M.at<double>(0, 0);
+	triangulatePoints(P1, P2, pointsctd[0], pointsctd[1], pts4d);
+
+	vector<Point3f> pts3d;
+	for (int i = 0; i < pointsctd[0].size(); i++)  {
+		float x, y, z;
+		x = pts4d.at<float>(0, i) / pts4d.at<float>(3, i);
+		y = pts4d.at<float>(1, i) / pts4d.at<float>(3, i);
+		z = pts4d.at<float>(2, i) / pts4d.at<float>(3, i);
+		pts3d.push_back(Point3f(x, y, z));
+	}
+
+	// convert back to image coordinates
+	for (int i = 0; i < pointsctd[0].size(); i++) {
+		pointsctd[0][i].x = pointsctd[0][i].x * 825 + 331.653;
+		pointsctd[0][i].y = pointsctd[0][i].y * 824.267 + 252.928;
+		pointsctd[1][i].x = pointsctd[1][i].x * 825 + 331.653;
+		pointsctd[1][i].y = pointsctd[1][i].y * 824.267 + 252.928;
+	}
+
+	//initUndistortRectifyMap(M, distCoeff1, R1, P1, Size(640, 480), CV_32FC1, map1, map2);
+	//remap(parallel_cube[0], im1, map1, map2, INTER_LINEAR);
+
+	//initUndistortRectifyMap(M, distCoeff1, R2, P2, Size(640, 480), CV_32FC1, map1, map2);
+	//remap(parallel_cube[5], im2, map1, map2, INTER_LINEAR);
+
+	//undistortPoints(points[0], pointsctd[0], M, distCoeff1, R1, P1);
+	//undistortPoints(points[1], pointsctd[1], M, distCoeff1, R2, P2);
+
+	//vector<Point3f> p3d;
+	//for (int i = 0; i < 4; i++) {
+	//	p3d.push_back(Point3f(pointsctd[0][i].x, pointsctd[0][i].y, pointsctd[0][i].x - pointsctd[1][i].x));
+	//}
+
+	//Mat coord;
+	//Q.at<double>(0,3) = -331.653;
+	//Q.at<double>(1, 3) = -252.98;
+	//perspectiveTransform(p3d, coord, Q);
+
+
+	double min = 10e6;
+	for (int i = 0; i < pts3d.size(); i++) {
+		double d = pts3d[i].z;
 		if (d > 0 && d < min){
 			min = d;
 		}
 	}
 	double scale = 20 / min;
 
-	for (int i = 0; i < 4; i++) {
-		circle(out[0], pointsctd[0][i * 6], 10, Scalar(0, 255, 0));
+	for (int i = 0; i < 20; i++) {
+		circle(out[0], pointsctd[0][i], 10, Scalar(0, 255, 0));
 		char text[50];
-		sprintf(text, "%.02f, %.02f, %.02f", scale*p3d[i].at<double>(0, 0), scale*p3d[i].at<double>(1, 0), scale*p3d[i].at<double>(2, 0));
-		putText(out[0], text, Point(pointsctd[0][i * 6].x + 5, pointsctd[0][i * 6].y + 5), FONT_HERSHEY_PLAIN,1,Scalar(0,255,0),2);
+		sprintf(text, "%.02f, %.02f, %.02f", scale*pts3d[i].x, scale*pts3d[i].y, scale*pts3d[i].z);
+		putText(out[0], text, Point(pointsctd[0][i].x + 5, pointsctd[0][i].y + 5), FONT_HERSHEY_PLAIN,1,Scalar(0,255,0),2);
 	}
 
 
