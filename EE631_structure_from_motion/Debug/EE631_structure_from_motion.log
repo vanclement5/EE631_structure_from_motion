@@ -1,0 +1,30 @@
+﻿Build started 3/16/2016 10:22:34 PM.
+     1>Project "c:\Users\davel\documents\visual studio 2013\Projects\EE631_structure_from_motion\EE631_structure_from_motion\EE631_structure_from_motion.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Program Files (x86)\opencv\prebuild\include" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt structure_from_motion.cpp
+         structure_from_motion.cpp
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(72): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(73): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(74): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(76): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(77): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(126): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(144): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(147): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(152): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(178): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(179): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(199): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(200): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(201): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(202): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(203): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\davel\documents\visual studio 2013\projects\ee631_structure_from_motion\ee631_structure_from_motion\structure_from_motion.cpp(228): warning C4018: '<' : signed/unsigned mismatch
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"c:\users\davel\documents\visual studio 2013\Projects\EE631_structure_from_motion\Debug\EE631_structure_from_motion.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files (x86)\opencv\prebuild\x86\vc12\lib" opencv_world300d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"c:\users\davel\documents\visual studio 2013\Projects\EE631_structure_from_motion\Debug\EE631_structure_from_motion.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"c:\users\davel\documents\visual studio 2013\Projects\EE631_structure_from_motion\Debug\EE631_structure_from_motion.lib" /MACHINE:X86 Debug\structure_from_motion.obj
+         EE631_structure_from_motion.vcxproj -> c:\users\davel\documents\visual studio 2013\Projects\EE631_structure_from_motion\Debug\EE631_structure_from_motion.exe
+     1>Done Building Project "c:\Users\davel\documents\visual studio 2013\Projects\EE631_structure_from_motion\EE631_structure_from_motion\EE631_structure_from_motion.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.15
