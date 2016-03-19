@@ -181,11 +181,10 @@ void tasks(char *path_in, char *path_out) {
 	}
 
 	char full_path_out[50];
-	sprintf(full_path_out, "%s1.bmp", path_out);
+	sprintf(full_path_out, "%s1.png", path_out);
 	imwrite(full_path_out, ctd1);
-	sprintf(full_path_out, "%s2.bmp", path_out);
+	sprintf(full_path_out, "%s2.png", path_out);
 	imwrite(full_path_out, ctd2);
-
 
 	// do task2 output
 	M = (Mat_<double>(3, 3) << 825, 0, 331.653, 0, 824.267, 252.928, 0, 0, 1);
@@ -223,6 +222,7 @@ void tasks(char *path_in, char *path_out) {
 	Mat t0 = (Mat_<double>(3, 1) << T0.at<double>(2, 1), T0.at<double>(2, 0), T0.at<double>(1, 0));
 	Mat t1 = (Mat_<double>(3, 1) << T1.at<double>(2, 1), T1.at<double>(2, 0), T1.at<double>(1, 0));
 
+	sprintf(full_path_out, "%s_params.txt", path_out);
 	ofstream ofs;
 
 	ofs.open(full_path_out, ofstream::out);
