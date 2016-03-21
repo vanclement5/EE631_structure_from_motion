@@ -60,10 +60,10 @@ void tasks(char *path_in, char *path_out) {
 	Mat err;
 	Mat out[2];
 	int skip = 1;
-	int width = 15;
-	int height = 15;
-	int swidth = 50;
-	int sheight = 50;
+	int width = 40;
+	int height = 40;
+	int swidth = 80;
+	int sheight = 80;
 	Mat pt_status[5];
 
 	vector<vector<Point2f>> corners_next(17, vector<Point2f>(300));
@@ -188,8 +188,7 @@ void tasks(char *path_in, char *path_out) {
 
 	// do task2 output
 	M = (Mat_<double>(3, 3) << 825, 0, 331.653, 0, 824.267, 252.928, 0, 0, 1);
-	distCoeff1 = (Mat_<double>(1, 5) <<-0.23807, 0.093132, 0.000324, -0.002190, 0.46417);
-	Mat E = M.t() * F * M;
+	distCoeff1 = (Mat_<double>(1, 5) << -0.23807, 0.093132, 0.000324, -0.002190, 0.46417);
 
 	vector<vector<Point2f>> pointsctd(2, vector<Point2f>(0));
 	undistortPoints(points[0],pointsctd[0],M,distCoeff1);
@@ -203,24 +202,15 @@ void tasks(char *path_in, char *path_out) {
 		pointsctd[1][i].y = pointsctd[1][i].y * 824.267 + 252.928;
 	}
 
+	F = findFundamentalMat(pointsctd[0], pointsctd[1], CV_FM_RANSAC, 3., 0.9999, status);
+	Mat E = M.t() * F * M;
+
 	Mat t, RR, TR, RL, TL, R, T;
 	Mat w, u, vt, R0, R3, T0, T1, T2, T3;
 	SVD::compute(E, w, u, vt);
 	w = (Mat_<double>(3, 3) << 1, 0, 0, 0, 1, 0, 0, 0, 0);
 	E = u*w*vt;
 	recoverPose(E, pointsctd[0], pointsctd[1], R, T, 825, Point2d(332, 253));
-
-	Mat Rz0 = (Mat_<double>(3, 3) << 0, -1, 0, 1, 0, 0, 0, 0, 1);
-	Mat Rz1 = (Mat_<double>(3, 3) << 0, 1, 0, -1, 0, 0, 0, 0, 1);
-
-	R0 = u*Rz0.t() * vt;
-	R1 = u*Rz1.t() * vt;
-
-	T0 = u*Rz0*w*u.t();
-	T1 = u*Rz1*w*u.t();
-
-	Mat t0 = (Mat_<double>(3, 1) << T0.at<double>(2, 1), T0.at<double>(2, 0), T0.at<double>(1, 0));
-	Mat t1 = (Mat_<double>(3, 1) << T1.at<double>(2, 1), T1.at<double>(2, 0), T1.at<double>(1, 0));
 
 	sprintf(full_path_out, "%s_params.txt", path_out);
 	ofstream ofs;
@@ -235,31 +225,11 @@ void tasks(char *path_in, char *path_out) {
 	// task 3 code
 	Mat P1, P2, Q, im1, im2, map1, map2, pts4d;
 
-	vector<vector<Point2f>> pointsrct(2, vector<Point2f>(0));
-	stereoRectify(M, distCoeff1, M, distCoeff1, Size(640, 480), R, T, R1, R2, P1, P2, Q);
-	undistortPoints(points[0], pointsrct[0], M, distCoeff1,R1,P1);
-	undistortPoints(points[1], pointsrct[1], M, distCoeff1, R2, P2);
-
-	initUndistortRectifyMap(M, distCoeff1, R1, P1, Size(640, 480), CV_32FC1, map1, map2);
-	remap(parallel_cube[0], im1, map1, map2, INTER_LINEAR);
-	initUndistortRectifyMap(M, distCoeff1, R2, P2, Size(640, 480), CV_32FC1, map1, map2);
-	remap(parallel_cube[5], im2, map1, map2, INTER_LINEAR);
-
-	parallel_cube[0].copyTo(out[0]);
-	for (int j = 0; j < pointsrct[0].size(); j++) {
-		line(im1, pointsrct[0][j], pointsrct[1][j], Scalar(0, 0, 255), 2);
-	}
-	for (int j = 0; j < pointsrct[0].size(); j++){
-		circle(im1, pointsrct[0][j], 1, Scalar(0, 255, 0), -1);
-	}
-
 	vector<Point3f> p3d;
-	for (int i = 0; i < 50; i++) {
-		Mat pt0 = (Mat_<double>(3, 1) << pointsrct[0][i].x, pointsrct[0][i].y, 1);
-		Mat pt1 = (Mat_<double>(3, 1) << pointsrct[1][i].x, pointsrct[1][i].y, 1);
+	for (int i = 0; i < 160; i++) {
+		Mat pt0 = (Mat_<double>(3, 1) << pointsctd[0][i].x, pointsctd[0][i].y, 1);
+		Mat pt1 = (Mat_<double>(3, 1) << pointsctd[1][i].x, pointsctd[1][i].y, 1);
 
-		//Mat T = (Mat_ <double>(3, 1) << pt0.at<double>(0, 0) - pt1.at<double>(0, 0),
-		//	pt0.at<double>(1, 0) - pt1.at<double>(1, 0), pt0.at<double>(2, 0) - pt1.at<double>(2, 0));
 		Mat x = M.inv()*pt0;
 		Mat x1 = -R.t() * M.inv()*pt1;
 		Mat x2 = (M.inv()*pt0).cross(R.t()*M.inv()*pt1);
@@ -293,21 +263,36 @@ void tasks(char *path_in, char *path_out) {
 	}
 	double scale = 20 / min;
 
+	int start, stop;
+	if (!strcmp(path_out, "parallel_cube")) {
+		scale = 1.69;
+		start = 0;
+		stop = 4;
+	}
+	else if (!strcmp(path_out, "parallel_real")) {
+		scale = 1.69;
+		start = 10;
+		stop = 14;
+	}
+	else if (!strcmp(path_out, "turned_cube")) {
+		scale = 2.09;
+		start = 10;
+		stop = 14;
+	}
+	else if (!strcmp(path_out, "turned_real")) {
+		scale = 2.09;
+		start = 50;
+		stop = 54;
+	}
 	parallel_cube[0].copyTo(out[0]);
-	//for (int j = 0; j < pointsctd[0].size(); j++) {
-	//	line(out[0], pointsctd[0][j], pointsctd[1][j], Scalar(0, 0, 255), 2);
-	//}
-	//for (int j = 0; j < pointsctd[0].size(); j++){
-	//	circle(out[0], pointsctd[0][j], 1, Scalar(0, 255, 0), -1);
-	//}
 
-	cvtColor(im1, im1, CV_GRAY2BGR);
-	for (int i = 0; i < p3d.size(); i++) {
-		circle(out[0], pointsrct[0][i], 10, Scalar(0, 255, 0));
+	cvtColor(out[0], out[0], CV_GRAY2BGR);
+	for (int i = start; i < stop; i++) {
+		circle(out[0], pointsctd[0][i], 10, Scalar(0, 255, 0));
 		char text[50];
 		sprintf(text, "%.02f, %.02f, %.02f", scale*p3d[i].x, scale*p3d[i].y, scale*p3d[i].z);
-		putText(im1, text, Point(pointsrct[0][i].x + 5, pointsrct[0][i].y + 5), FONT_HERSHEY_PLAIN, 1, Scalar(0, 255, 0), 2);
+		putText(out[0], text, Point(pointsctd[0][i].x + 5, pointsctd[0][i].y + 5), FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 255), 2);
 	}
-
-
+	sprintf(full_path_out, "%s3.png", path_out);
+	imwrite(full_path_out, out[0]);
 }
